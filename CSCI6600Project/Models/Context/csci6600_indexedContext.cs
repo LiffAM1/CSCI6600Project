@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Linq;
+using CSCI6600Project.Models.Base;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 #nullable disable
 
-namespace CSCI6600Project.Models.Index
+namespace CSCI6600Project.Models.Context
 {
     public partial class csci6600_indexedContext : DbContext
     {
@@ -45,13 +46,13 @@ namespace CSCI6600Project.Models.Index
                     .HasMaxLength(50);
 
                 entity.HasOne(d => d.Breed)
-                    .WithMany(p => p.Dogs.Select(d => (Dog)d))
+                    .WithMany(p => p.Dogs)
                     .HasForeignKey(d => d.BreedId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__Dogs__BreedId__6D0D32F4");
 
                 entity.HasOne(d => d.Owner)
-                    .WithMany(p => p.Dogs.Select(d => (Dog)d))
+                    .WithMany(p => p.Dogs)
                     .HasForeignKey(d => d.OwnerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__Dogs__OwnerId__6E01572D");
@@ -68,7 +69,7 @@ namespace CSCI6600Project.Models.Index
                     .HasMaxLength(50);
 
                 entity.HasOne(d => d.Group)
-                    .WithMany(p => p.DogBreeds.Select(d => (DogBreed)d))
+                    .WithMany(p => p.DogBreeds)
                     .HasForeignKey(d => d.GroupId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__DogBreeds__Group__5EBF139D");

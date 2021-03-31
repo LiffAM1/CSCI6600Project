@@ -1,5 +1,6 @@
 ﻿using CSCI6600Project.Models;
-using CSCI6600Project.Models.NonIndex;
+using CSCI6600Project.Models.Base;
+using CSCI6600Project.Models.Context;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace CSCI6600Project.DataGeneration
 {
-    public class GeneratorService : IGeneratorService
+    public class GeneratorService: IGeneratorService
     {
         private List<string> _firstNames = new List<string>();
         private List<string> _lastNames = new List<string>();
@@ -121,7 +122,7 @@ namespace CSCI6600Project.DataGeneration
                 owners.Add(GenerateOwner());
             if (save)
             {
-                _dbContext.AddRange(owners);
+                _dbContext.AddRange(owners.Select(o => (DogOwner)o));
                 _dbContext.SaveChanges();
             }
             return owners;
@@ -201,7 +202,7 @@ namespace CSCI6600Project.DataGeneration
                 dogs.Add(GenerateDog(owners));
             if (save)
             {
-                _dbContext.AddRange(dogs);
+                _dbContext.AddRange(dogs.Select(d => (Dog)d));
                 _dbContext.SaveChanges();
             }
             return dogs;

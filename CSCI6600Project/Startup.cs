@@ -1,7 +1,7 @@
 using CSCI6600Project.DataGeneration;
 using CSCI6600Project.Models;
-using CSCI6600Project.Models.Index;
-using CSCI6600Project.Models.NonIndex;
+using CSCI6600Project.Models.Context;
+using CSCI6600Project.Models.Base;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -33,9 +33,9 @@ namespace CSCI6600Project
         {
             services.AddControllers();
             services.AddDbContext<csci6600Context>(options =>
-                options.UseSqlServer(Configuration["ConnectionStringNoIndex"]));
+                options.UseSqlServer(Configuration["ConnectionStringNonIndexed"]));
             services.AddDbContext<csci6600_indexedContext>(options =>
-                options.UseSqlServer(Configuration["ConnectionStringIndex"]));
+                options.UseSqlServer(Configuration["ConnectionStringIndexed"]));
             services.AddDistributedRedisCache(options =>  
             {  
                 options.Configuration = Configuration.GetConnectionString("RedisConnectionString");  
@@ -43,6 +43,7 @@ namespace CSCI6600Project
             });
 
             // Services
+            services.AddTransient<IDataService,DataService>();
             services.AddTransient<IGeneratorService,GeneratorService>();
         }
 

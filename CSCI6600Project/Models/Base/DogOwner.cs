@@ -1,16 +1,15 @@
-﻿using CSCI6600Project.Models.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-#nullable disable
-
-namespace CSCI6600Project.Models.NonIndex
+namespace CSCI6600Project.Models.Base
 {
-    public partial class DogOwner : IDogOwner
+    public class DogOwner
     {
         public DogOwner()
         {
-            Dogs = new HashSet<IDog>();
+            Dogs = new HashSet<Dog>();
         }
 
         public Guid Id { get; set; }
@@ -21,6 +20,6 @@ namespace CSCI6600Project.Models.NonIndex
         public int Age { get; set; }
         public string CountryCode { get; set; }
 
-        public virtual ICollection<IDog> Dogs { get; set; }
+        public ICollection<Dog> Dogs { get; set; }
     }
 }

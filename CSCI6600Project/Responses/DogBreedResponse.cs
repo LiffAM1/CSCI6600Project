@@ -1,21 +1,21 @@
-﻿using CSCI6600Project.Models.Interfaces;
+﻿using CSCI6600Project.Models.Base;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-#nullable disable
-
-namespace CSCI6600Project.Models.NonIndex
+namespace CSCI6600Project.Responses
 {
-    public partial class DogBreed : IDogBreed
+    public class DogBreedResponse : ResponseBase
     {
-        public DogBreed()
+        public DogBreedResponse(DogBreed model)
         {
-            Dogs = new HashSet<IDog>();
+            CopyProperties(model, this, new List<string>() { "Group" });
+            Group = new BreedGroupResponse(model.Group);
         }
 
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public Guid GroupId { get; set; }
         public int MinimumWeight { get; set; }
         public int MaximumWeight { get; set; }
         public int MinimumHeight { get; set; }
@@ -24,8 +24,6 @@ namespace CSCI6600Project.Models.NonIndex
         public int MaximumLifeExpectancy { get; set; }
         public string Description { get; set; }
         public int BreedPopularity { get; set; }
-
-        public virtual IBreedGroup Group { get; set; }
-        public virtual ICollection<IDog> Dogs { get; set; }
+        public BreedGroupResponse Group { get; set; }
     }
 }

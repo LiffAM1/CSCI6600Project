@@ -1,16 +1,15 @@
-﻿using CSCI6600Project.Models.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-#nullable disable
-
-namespace CSCI6600Project.Models.Index
+namespace CSCI6600Project.Models.Base
 {
-    public partial class DogBreed : IDogBreed
+    public class DogBreed
     {
         public DogBreed()
         {
-            Dogs = new HashSet<IDog>();
+            Dogs = new HashSet<Dog>();
         }
 
         public Guid Id { get; set; }
@@ -25,7 +24,7 @@ namespace CSCI6600Project.Models.Index
         public string Description { get; set; }
         public int BreedPopularity { get; set; }
 
-        public virtual IBreedGroup Group { get; set; }
-        public virtual ICollection<IDog> Dogs { get; set; }
+        public BreedGroup Group { get; set; }
+        public ICollection<Dog> Dogs { get; set; }
     }
 }

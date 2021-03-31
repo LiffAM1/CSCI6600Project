@@ -1,16 +1,16 @@
-﻿using CSCI6600Project.Models.Interfaces;
+﻿using CSCI6600Project.Models.Base;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-#nullable disable
-
-namespace CSCI6600Project.Models.Index
+namespace CSCI6600Project.Responses
 {
-    public partial class DogOwner : IDogOwner
+    public class DogOwnerResponse : ResponseBase
     {
-        public DogOwner()
+        public DogOwnerResponse(DogOwner model)
         {
-            Dogs = new HashSet<IDog>();
+            CopyProperties(model, this); 
         }
 
         public Guid Id { get; set; }
@@ -20,7 +20,5 @@ namespace CSCI6600Project.Models.Index
         public string Phone { get; set; }
         public int Age { get; set; }
         public string CountryCode { get; set; }
-
-        public virtual ICollection<IDog> Dogs { get; set; }
     }
 }

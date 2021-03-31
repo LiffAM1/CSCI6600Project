@@ -13,9 +13,9 @@ namespace CSCI6600Project.Controllers
     public class GenerationController : ControllerBase
     {
         private readonly ILogger<GenerationController> _logger;
-        private readonly IGeneratorService _generatorService;
+        private readonly IDataService _generatorService;
 
-        public GenerationController(ILogger<GenerationController> logger, IGeneratorService generator)
+        public GenerationController(ILogger<GenerationController> logger, IDataService generator)
         {
             _logger = logger;
             _generatorService = generator;

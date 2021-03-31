@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-#nullable disable
-
-namespace CSCI6600Project.Models.Index
+namespace CSCI6600Project.Models.Base
 {
     public partial class BreedGroup
     {
@@ -15,6 +15,6 @@ namespace CSCI6600Project.Models.Index
         public Guid Id { get; set; }
         public string Name { get; set; }
 
-        public virtual ICollection<DogBreed> DogBreeds { get; set; }
+        public ICollection<DogBreed> DogBreeds { get; set; }
     }
 }

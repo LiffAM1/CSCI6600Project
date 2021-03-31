@@ -1,6 +1,7 @@
 ﻿using CSCI6600Project.DataGeneration;
 using CSCI6600Project.Models;
-using CSCI6600Project.Models.NonIndex;
+using CSCI6600Project.Models.Context;
+using CSCI6600Project.Models.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
