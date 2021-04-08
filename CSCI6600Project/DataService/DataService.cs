@@ -22,7 +22,7 @@ namespace CSCI6600Project.DataGeneration
         IConfiguration _configuration;
         ICacheManager _cache;
 
-        public DataService(IConfiguration config, ICacheManager cache, IDatabaseContext dbContext, IDatabaseContext dbContextIndexed)
+        public DataService(IConfiguration config, ICacheManager cache, csci6600Context dbContext, csci6600_indexedContext dbContextIndexed)
         {
             _nonIndexedDbContext = dbContext;
             _indexedContext = dbContextIndexed;

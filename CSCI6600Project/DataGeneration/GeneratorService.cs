@@ -32,7 +32,7 @@ namespace CSCI6600Project.DataGeneration
 
         private IDatabaseContext _dbContext;
 
-        public GeneratorService(IDatabaseContext dbContext)
+        public GeneratorService(csci6600Context dbContext)
         {
             _dbContext = dbContext;
 

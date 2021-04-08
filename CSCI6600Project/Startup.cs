@@ -33,9 +33,9 @@ namespace CSCI6600Project
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddDbContext<IDatabaseContext,csci6600Context>(options =>
+            services.AddDbContext<csci6600Context>(options =>
                 options.UseSqlServer(Configuration["ConnectionStringNonIndexed"]));
-            services.AddDbContext<IDatabaseContext,csci6600_indexedContext>(options =>
+            services.AddDbContext<csci6600_indexedContext>(options =>
                 options.UseSqlServer(Configuration["ConnectionStringIndexed"]));
             var config = Configuration["RedisConnectionString"];
             services.AddDistributedRedisCache(options =>  
