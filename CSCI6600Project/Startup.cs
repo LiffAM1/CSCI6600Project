@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CSCI6600Project.Cache;
 
 namespace CSCI6600Project
 {
@@ -32,18 +33,20 @@ namespace CSCI6600Project
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddDbContext<csci6600Context>(options =>
+            services.AddDbContext<IDatabaseContext,csci6600Context>(options =>
                 options.UseSqlServer(Configuration["ConnectionStringNonIndexed"]));
-            services.AddDbContext<csci6600_indexedContext>(options =>
+            services.AddDbContext<IDatabaseContext,csci6600_indexedContext>(options =>
                 options.UseSqlServer(Configuration["ConnectionStringIndexed"]));
+            var config = Configuration["RedisConnectionString"];
             services.AddDistributedRedisCache(options =>  
-            {  
-                options.Configuration = Configuration.GetConnectionString("RedisConnectionString");  
+            {
+                options.Configuration = config;
                 options.InstanceName = "master";
             });
 
             // Services
             services.AddTransient<IDataService,DataService>();
+            services.AddTransient<ICacheManager,CacheManager>();
             services.AddTransient<IGeneratorService,GeneratorService>();
         }
 

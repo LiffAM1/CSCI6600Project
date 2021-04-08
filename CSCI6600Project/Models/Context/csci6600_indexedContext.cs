@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace CSCI6600Project.Models.Context
 {
-    public partial class csci6600_indexedContext : DbContext
+    public partial class csci6600_indexedContext : DbContext, IDatabaseContext
     {
         public csci6600_indexedContext()
         {

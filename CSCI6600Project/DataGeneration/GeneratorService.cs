@@ -30,9 +30,9 @@ namespace CSCI6600Project.DataGeneration
         private Dictionary<int, int> popularityCounts = new Dictionary<int, int>();
         private Dictionary<int, List<DogBreed>> availableBreeds = new Dictionary<int, List<DogBreed>>();
 
-        private csci6600Context _dbContext;
+        private IDatabaseContext _dbContext;
 
-        public GeneratorService(csci6600Context dbContext)
+        public GeneratorService(IDatabaseContext dbContext)
         {
             _dbContext = dbContext;
 

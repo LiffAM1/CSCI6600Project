@@ -8,57 +8,67 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using CSCI6600Project.Cache;
 
 namespace CSCI6600Project.DataGeneration
 {
     public class DataService : IDataService
     {
 
-        csci6600Context _nonIndexedDbContext;
-        csci6600_indexedContext _indexedContext;
+        IDatabaseContext _nonIndexedDbContext;
+        IDatabaseContext _indexedContext;
 
-        public DataService(csci6600Context dbContext, csci6600_indexedContext dbContextIndexed)
+        IConfiguration _configuration;
+        ICacheManager _cache;
+
+        public DataService(IConfiguration config, ICacheManager cache, IDatabaseContext dbContext, IDatabaseContext dbContextIndexed)
         {
             _nonIndexedDbContext = dbContext;
             _indexedContext = dbContextIndexed;
+            _configuration = config;
+            _cache = cache;
         }
-        public List<Dog> GetDogs(bool useIndex = false, bool useCache = false, Guid? id = null, string breed = null, Guid? breedId=null, string name = null, string ownerFirstName = null, string ownerLastName = null, Guid? ownerId = null, int? popularity = null)
+        public List<Dog> GetDogs(bool useIndex = false, bool useCache = false, Guid? id = null, string breed = null, Guid? breedId = null, string name = null, string ownerFirstName = null, string ownerLastName = null, Guid? ownerId = null, int? popularity = null)
         {
-            // if (useCache) and id is provided, try to get it from cache
+            var db = useIndex ? _indexedContext : _nonIndexedDbContext;
             var dogs = new List<Dog>();
-            if (useIndex)
+            var parameters = new { id, breed, breedId, name, ownerFirstName, ownerLastName, ownerId, popularity };
+            var parameterList = new List<string>();
+            foreach (PropertyInfo pi in parameters.GetType().GetProperties())
             {
-                dogs = _indexedContext.Dogs.Where(d =>
-                    id.HasValue ? (d.Id == id.Value) : true &&
-                    !String.IsNullOrEmpty(breed) ? (d.Breed.Name == breed) : true &&
-                    breedId.HasValue ? (d.BreedId == breedId.Value) : true &&
-                    !String.IsNullOrEmpty(name) ? (d.Name == name) : true &&
-                    !String.IsNullOrEmpty(ownerFirstName) ? (d.Owner.FirstName == ownerFirstName) : true &&
-                    !String.IsNullOrEmpty(ownerLastName) ? (d.Owner.LastName == ownerLastName) : true &&
-                    ownerId.HasValue ? (d.OwnerId == ownerId.Value) : true &&
-                    popularity.HasValue ? (d.Breed.BreedPopularity == popularity.Value) : true)
-                    .Include(d => d.Breed)
-                    .Include(d => d.Breed.Group)
-                    .Include(d => d.Owner)
-                    .ToList();
+                var val = pi.GetValue(parameters);
+                if (val != null)
+                {
+                    parameterList.Add($"{pi.Name}:{val.ToString()}");
+                }
             }
-            else
+            if (useCache)
             {
-                dogs = _nonIndexedDbContext.Dogs.Where(d =>
-                    id.HasValue ? (d.Id == id.Value) : true &&
-                    !String.IsNullOrEmpty(breed) ? (d.Breed.Name == breed) : true &&
-                    breedId.HasValue ? (d.BreedId == breedId.Value) : true &&
-                    !String.IsNullOrEmpty(name) ? (d.Name == name) : true &&
-                    !String.IsNullOrEmpty(ownerFirstName) ? (d.Owner.FirstName == ownerFirstName) : true &&
-                    !String.IsNullOrEmpty(ownerLastName) ? (d.Owner.LastName == ownerLastName) : true &&
-                    ownerId.HasValue ? (d.OwnerId == ownerId.Value) : true &&
-                    popularity.HasValue ? (d.Breed.BreedPopularity == popularity.Value) : true)
-                    .Include(d => d.Breed)
-                    .Include(d => d.Breed.Group)
-                    .Include(d => d.Owner)
-                    .ToList();
-            }
-            // if (isCache) and it wasn't found in cache, save it to cache
+                var cachedDogIds = _cache.GetCacheValue(GenerateKey("Dog", parameterList));
+                if (cachedDogIds != null)
+                    return db.Dogs.Where(d =>
+                        cachedDogIds.Contains(d.Id))
+                        .Include(d => d.Breed)
+                        .Include(d => d.Breed.Group)
+                        .Include(d => d.Owner)
+                        .ToList();
+             }
+            dogs = db.Dogs.Where(d =>
+                ((id.HasValue ? (d.Id == id.Value) : true) &&
+                (!String.IsNullOrEmpty(breed) ? (d.Breed.Name == breed) : true) &&
+                (breedId.HasValue ? (d.BreedId == breedId.Value) : true) &&
+                (!String.IsNullOrEmpty(name) ? (d.Name == name) : true) &&
+                (!String.IsNullOrEmpty(ownerFirstName) ? (d.Owner.FirstName == ownerFirstName) : true) &&
+                (!String.IsNullOrEmpty(ownerLastName) ? (d.Owner.LastName == ownerLastName) : true) &&
+                (ownerId.HasValue ? (d.OwnerId == ownerId.Value) : true ) &&
+                (popularity.HasValue ? (d.Breed.BreedPopularity == popularity.Value) : true)))
+                .Include(d => d.Breed)
+                .Include(d => d.Breed.Group)
+                .Include(d => d.Owner)
+                .ToList();
+            if (dogs.Count > 0 && useCache)
+                _cache.WriteToCache(GenerateKey("Dog", parameterList), dogs.Select(d => d.Id).ToList());
             return dogs;
         }
 
@@ -95,7 +105,6 @@ namespace CSCI6600Project.DataGeneration
 
         public List<DogOwner> GetOwners(bool useIndex = false, bool useCache = false, Guid? id = null, string firstName = null, string lastName = null, string dog=null, Guid? dogId = null, string breed = null)
         {
-            // if (useCache) and id is provided, try to get it from cache
             var owners = new List<DogOwner>();
             if (useIndex)
             {
@@ -122,6 +131,11 @@ namespace CSCI6600Project.DataGeneration
             // if (isCache) and it wasn't found in cache, save it to cache
             return owners;
 
+        }
+
+        private string GenerateKey(string objectType, List<string> parameterValues)
+        {
+            return $"{objectType}-{String.Join(";", parameterValues)}";
         }
 
     }
