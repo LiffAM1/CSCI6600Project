@@ -8,6 +8,15 @@ namespace CSCI6600Project.Responses
 {
     public partial class BreedGroupResponse : ResponseBase
     {
+        public BreedGroupResponse()
+        {
+        }
+
+        public BreedGroupResponse(BreedGroupResponse other)
+        {
+            CopyProperties(other, this);
+        }
+
         public BreedGroupResponse(BreedGroup model)
         {
             CopyProperties(model, this);

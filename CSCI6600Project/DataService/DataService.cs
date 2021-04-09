@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using CSCI6600Project.Cache;
+using CSCI6600Project.Responses;
 
 namespace CSCI6600Project.DataGeneration
 {
@@ -29,10 +30,9 @@ namespace CSCI6600Project.DataGeneration
             _configuration = config;
             _cache = cache;
         }
-        public List<Dog> GetDogs(bool useIndex = false, bool useCache = false, Guid? id = null, string breed = null, Guid? breedId = null, string name = null, string ownerFirstName = null, string ownerLastName = null, Guid? ownerId = null, int? popularity = null)
+        public List<DogResponse> GetDogs(bool useIndex = false, bool useCache = false, Guid? id = null, string breed = null, Guid? breedId = null, string name = null, string ownerFirstName = null, string ownerLastName = null, Guid? ownerId = null, int? popularity = null)
         {
             var db = useIndex ? _indexedContext : _nonIndexedDbContext;
-            var dogs = new List<Dog>();
             var parameters = new { id, breed, breedId, name, ownerFirstName, ownerLastName, ownerId, popularity };
             var parameterList = new List<string>();
             foreach (PropertyInfo pi in parameters.GetType().GetProperties())
@@ -45,16 +45,11 @@ namespace CSCI6600Project.DataGeneration
             }
             if (useCache)
             {
-                var cachedDogIds = _cache.GetCacheValue(GenerateKey("Dog", parameterList));
-                if (cachedDogIds != null)
-                    return db.Dogs.Where(d =>
-                        cachedDogIds.Contains(d.Id))
-                        .Include(d => d.Breed)
-                        .Include(d => d.Breed.Group)
-                        .Include(d => d.Owner)
-                        .ToList();
+                var cachedDogs = _cache.GetCacheValue<List<DogResponse>>(GenerateKey("Dog", parameterList));
+                if (cachedDogs != null)
+                    return cachedDogs;
              }
-            dogs = db.Dogs.Where(d =>
+            var dogs = db.Dogs.Where(d =>
                 ((id.HasValue ? (d.Id == id.Value) : true) &&
                 (!String.IsNullOrEmpty(breed) ? (d.Breed.Name == breed) : true) &&
                 (breedId.HasValue ? (d.BreedId == breedId.Value) : true) &&
@@ -66,71 +61,77 @@ namespace CSCI6600Project.DataGeneration
                 .Include(d => d.Breed)
                 .Include(d => d.Breed.Group)
                 .Include(d => d.Owner)
+                .Select(d => new DogResponse(d))
                 .ToList();
             if (dogs.Count > 0 && useCache)
-                _cache.WriteToCache(GenerateKey("Dog", parameterList), dogs.Select(d => d.Id).ToList());
+                _cache.WriteToCache(GenerateKey("Dog", parameterList), dogs);
             return dogs;
         }
 
-        public List<DogBreed> GetBreeds(bool useIndex = false, bool useCache = false, Guid? id = null, string name = null, int? popularity = null, string group = null, Guid? groupId=null)
+        public List<DogBreedResponse> GetBreeds(bool useIndex = false, bool useCache = false, Guid? id = null, string name = null, int? popularity = null, string group = null, Guid? groupId=null)
         {
-            // if (useCache) and id is provided, try to get it from cache
-            var breeds = new List<DogBreed>();
-            if (useIndex)
+            var db = useIndex ? _indexedContext : _nonIndexedDbContext;
+            var parameters = new { id, name, popularity, group, groupId};
+            var parameterList = new List<string>();
+            foreach (PropertyInfo pi in parameters.GetType().GetProperties())
             {
-                breeds = _indexedContext.DogBreeds.Where(b =>
-                    id.HasValue ? (b.Id == id.Value) : true &&
-                    !String.IsNullOrEmpty(name) ? (b.Name == name) : true &&
-                    popularity.HasValue ? (b.BreedPopularity == popularity.Value) : true &&
-                    !String.IsNullOrEmpty(group) ? (b.Group.Name == group) : true &&
-                    groupId.HasValue ? (b.GroupId == groupId.Value) : true)
-                    .Include(d => d.Group)
-                    .ToList();
+                var val = pi.GetValue(parameters);
+                if (val != null)
+                {
+                    parameterList.Add($"{pi.Name}:{val.ToString()}");
+                }
             }
-            else
+            if (useCache)
             {
-                breeds = _nonIndexedDbContext.DogBreeds.Where(b =>
-                    id.HasValue ? (b.Id == id.Value) : true &&
-                    !String.IsNullOrEmpty(name) ? (b.Name == name) : true &&
-                    popularity.HasValue ? (b.BreedPopularity == popularity.Value) : true &&
-                    !String.IsNullOrEmpty(group) ? (b.Group.Name == group) : true &&
-                    groupId.HasValue ? (b.GroupId == groupId.Value) : true)
-                    .Include(d => d.Group)
-                    .ToList();
-            }
-            // if (isCache) and it wasn't found in cache, save it to cache
+                var cachedBreeds = _cache.GetCacheValue<List<DogBreedResponse>>(GenerateKey("DogBreed", parameterList));
+                if (cachedBreeds != null)
+                    return cachedBreeds;
+             }
+            var breeds = _indexedContext.DogBreeds.Where(b =>
+                (id.HasValue ? (b.Id == id.Value) : true) &&
+                (!String.IsNullOrEmpty(name) ? (b.Name == name) : true) &&
+                (popularity.HasValue ? (b.BreedPopularity == popularity.Value) : true) &&
+                (!String.IsNullOrEmpty(group) ? (b.Group.Name == group) : true) &&
+                (groupId.HasValue ? (b.GroupId == groupId.Value) : true))
+                .Include(d => d.Group)
+                .Select(b => new DogBreedResponse(b))
+                .ToList();
+            if (breeds.Count > 0 && useCache)
+                _cache.WriteToCache(GenerateKey("DogBreed", parameterList),breeds);
             return breeds;
-
         }
 
-        public List<DogOwner> GetOwners(bool useIndex = false, bool useCache = false, Guid? id = null, string firstName = null, string lastName = null, string dog=null, Guid? dogId = null, string breed = null)
+        public List<DogOwnerResponse> GetOwners(bool useIndex = false, bool useCache = false, Guid? id = null, string firstName = null, string lastName = null, string dog=null, Guid? dogId = null, string breed = null)
         {
-            var owners = new List<DogOwner>();
-            if (useIndex)
+            var db = useIndex ? _indexedContext : _nonIndexedDbContext;
+            var parameters = new { id, firstName, lastName, dog, dogId, breed};
+            var parameterList = new List<string>();
+            foreach (PropertyInfo pi in parameters.GetType().GetProperties())
             {
-                owners = _indexedContext.DogOwners.Where(o =>
-                    id.HasValue ? (o.Id == id.Value) : true &&
-                    !String.IsNullOrEmpty(firstName) ? (o.FirstName == firstName) : true &&
-                    !String.IsNullOrEmpty(lastName) ? (o.LastName == lastName) : true &&
-                    !String.IsNullOrEmpty(dog) ? (o.Dogs.Any(d => d.Name == dog)) : true &&
-                    dogId.HasValue ? (o.Dogs.Any(d => d.Id == dogId)) : true &&
-                    !String.IsNullOrEmpty(breed) ? (o.Dogs.Any(d => d.Breed.Name == breed)) : true)
-                    .ToList();
+                var val = pi.GetValue(parameters);
+                if (val != null)
+                {
+                    parameterList.Add($"{pi.Name}:{val.ToString()}");
+                }
             }
-            else
+            if (useCache)
             {
-                owners = _nonIndexedDbContext.DogOwners.Where(o =>
-                    id.HasValue ? (o.Id == id.Value) : true &&
-                    !String.IsNullOrEmpty(firstName) ? (o.FirstName == firstName) : true &&
-                    !String.IsNullOrEmpty(lastName) ? (o.LastName == lastName) : true &&
-                    !String.IsNullOrEmpty(dog) ? (o.Dogs.Any(d => d.Name == dog)) : true &&
-                    dogId.HasValue ? (o.Dogs.Any(d => d.Id == dogId)) : true &&
-                    !String.IsNullOrEmpty(breed) ? (o.Dogs.Any(d => d.Breed.Name == breed)) : true)
-                    .ToList();
-            }
-            // if (isCache) and it wasn't found in cache, save it to cache
+                var dogOwners = _cache.GetCacheValue<List<DogOwnerResponse>>(GenerateKey("DogOwner", parameterList));
+                if (dogOwners != null)
+                    return dogOwners;
+             }
+            var owners = _indexedContext.DogOwners.Where(o =>
+                (id.HasValue ? (o.Id == id.Value) : true) &&
+                (!String.IsNullOrEmpty(firstName) ? (o.FirstName == firstName) : true) &&
+                (!String.IsNullOrEmpty(lastName) ? (o.LastName == lastName) : true) &&
+                (!String.IsNullOrEmpty(dog) ? (o.Dogs.Any(d => d.Name == dog)) : true) &&
+                (dogId.HasValue ? (o.Dogs.Any(d => d.Id == dogId)) : true) &&
+                (!String.IsNullOrEmpty(breed) ? (o.Dogs.Any(d => d.Breed.Name == breed)) : true))
+                .Select(o => new DogOwnerResponse(o))
+                .ToList();
+            if (owners.Count > 0 && useCache)
+                _cache.WriteToCache(GenerateKey("DogOwner", parameterList), owners);
             return owners;
-
         }
 
         private string GenerateKey(string objectType, List<string> parameterValues)

@@ -29,14 +29,14 @@ namespace CSCI6600Project.Controllers
         public IActionResult GetDogs([FromRoute]Guid? id=null,[FromQuery]bool useIndex=false,[FromQuery]bool useCache=false)
         {
             var dogs = _dataService.GetDogs(useIndex: useIndex, useCache: useCache, id: id);
-            return Ok(dogs.Select(d => new DogResponse(d)));
+            return Ok(dogs);
         }
 
         [HttpGet]
         public IActionResult GetDogs([FromQuery]bool useIndex=false,[FromQuery]bool useCache=false,[FromQuery]string breed=null,[FromQuery]Guid? breedId=null,[FromQuery]string name=null,[FromQuery]string ownerFirstName=null,[FromQuery]string ownerLastName=null,[FromQuery]Guid? ownerId=null,[FromQuery]int? popularity=null)
         {
             var dogs = _dataService.GetDogs(useIndex: useIndex, useCache: useCache,breed: breed,breedId: breedId,name: name,ownerId: ownerId,ownerFirstName: ownerFirstName,ownerLastName: ownerLastName,popularity: popularity);
-            return Ok(dogs.Select(d => new DogResponse(d)));
+            return Ok(dogs);
         }
     }
 }

@@ -8,6 +8,14 @@ namespace CSCI6600Project.Responses
 {
     public class DogOwnerResponse : ResponseBase
     {
+        public DogOwnerResponse()
+        {
+        }
+        public DogOwnerResponse(DogOwnerResponse other)
+        {
+            CopyProperties(other, this); 
+        }
+
         public DogOwnerResponse(DogOwner model)
         {
             CopyProperties(model, this); 

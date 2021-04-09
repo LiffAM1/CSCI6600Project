@@ -8,6 +8,15 @@ namespace CSCI6600Project.Responses
 {
     public partial class OwnerSummaryResponse : ResponseBase
     {
+        public OwnerSummaryResponse()
+        {
+        }
+
+        public OwnerSummaryResponse(OwnerSummaryResponse other)
+        {
+            CopyProperties(other, this);
+        }
+
         public OwnerSummaryResponse(DogOwner model)
         {
             CopyProperties(model, this);

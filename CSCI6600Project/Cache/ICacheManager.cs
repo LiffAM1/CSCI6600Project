@@ -7,8 +7,8 @@ namespace CSCI6600Project.Cache
 {
     public interface ICacheManager
     {
-        void WriteToCache(string key, List<Guid> value);
+        void WriteToCache<T>(string key, T value);
 
-        List<Guid> GetCacheValue(string key);
+        T GetCacheValue<T>(string key);
     }
 }

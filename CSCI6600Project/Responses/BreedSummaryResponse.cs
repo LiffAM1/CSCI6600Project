@@ -8,6 +8,15 @@ namespace CSCI6600Project.Responses
 {
     public class BreedSummaryResponse : ResponseBase
     {
+        public BreedSummaryResponse()
+        {
+        }
+
+        public BreedSummaryResponse(BreedSummaryResponse other)
+        {
+            CopyProperties(other, this);
+        }
+
         public BreedSummaryResponse(DogBreed model)
         {
             CopyProperties(model, this, new List<string>() { "Group" });
