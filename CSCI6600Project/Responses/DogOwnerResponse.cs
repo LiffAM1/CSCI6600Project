@@ -18,7 +18,8 @@ namespace CSCI6600Project.Responses
 
         public DogOwnerResponse(DogOwner model)
         {
-            CopyProperties(model, this); 
+            CopyProperties(model, this, new List<string>() { "Dogs" });
+            Dogs = model.Dogs.Select(x => new DogSummaryResponse(x)).ToList();
         }
 
         public Guid Id { get; set; }
@@ -28,5 +29,7 @@ namespace CSCI6600Project.Responses
         public string Phone { get; set; }
         public int Age { get; set; }
         public string CountryCode { get; set; }
+
+        public List<DogSummaryResponse> Dogs { get; set; }
     }
 }

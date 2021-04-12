@@ -30,7 +30,7 @@ namespace CSCI6600Project.DataGeneration
             _configuration = config;
             _cache = cache;
         }
-        public List<DogResponse> GetDogs(bool useIndex = false, bool useCache = false, Guid? id = null, string breed = null, Guid? breedId = null, string name = null, string ownerFirstName = null, string ownerLastName = null, Guid? ownerId = null, int? popularity = null)
+        public List<DogResponse> GetDogs(bool useIndex = false, bool useCache = false, Guid? id = null, string breed = null, Guid? breedId = null, string name = null, string ownerFirstName = null, string ownerLastName = null, Guid? ownerId = null, int? popularity = null, string countryCode=null)
         {
             var db = useIndex ? _indexedContext : _nonIndexedDbContext;
             var parameters = new { id, breed, breedId, name, ownerFirstName, ownerLastName, ownerId, popularity };
@@ -51,12 +51,13 @@ namespace CSCI6600Project.DataGeneration
              }
             var dogs = db.Dogs.Where(d =>
                 ((id.HasValue ? (d.Id == id.Value) : true) &&
-                (!String.IsNullOrEmpty(breed) ? (d.Breed.Name == breed) : true) &&
                 (breedId.HasValue ? (d.BreedId == breedId.Value) : true) &&
+                (ownerId.HasValue ? (d.OwnerId == ownerId.Value) : true ) &&
                 (!String.IsNullOrEmpty(name) ? (d.Name == name) : true) &&
+                (!String.IsNullOrEmpty(breed) ? (d.Breed.Name == breed) : true) &&
                 (!String.IsNullOrEmpty(ownerFirstName) ? (d.Owner.FirstName == ownerFirstName) : true) &&
                 (!String.IsNullOrEmpty(ownerLastName) ? (d.Owner.LastName == ownerLastName) : true) &&
-                (ownerId.HasValue ? (d.OwnerId == ownerId.Value) : true ) &&
+                (!String.IsNullOrEmpty(countryCode) ? (d.Owner.CountryCode == countryCode) : true) &&
                 (popularity.HasValue ? (d.Breed.BreedPopularity == popularity.Value) : true)))
                 .Include(d => d.Breed)
                 .Include(d => d.Breed.Group)
@@ -91,8 +92,8 @@ namespace CSCI6600Project.DataGeneration
                 (id.HasValue ? (b.Id == id.Value) : true) &&
                 (!String.IsNullOrEmpty(name) ? (b.Name == name) : true) &&
                 (popularity.HasValue ? (b.BreedPopularity == popularity.Value) : true) &&
-                (!String.IsNullOrEmpty(group) ? (b.Group.Name == group) : true) &&
-                (groupId.HasValue ? (b.GroupId == groupId.Value) : true))
+                (groupId.HasValue ? (b.GroupId == groupId.Value) : true) &&
+                (!String.IsNullOrEmpty(group) ? (b.Group.Name == group) : true))
                 .Include(d => d.Group)
                 .Select(b => new DogBreedResponse(b))
                 .ToList();
@@ -101,7 +102,7 @@ namespace CSCI6600Project.DataGeneration
             return breeds;
         }
 
-        public List<DogOwnerResponse> GetOwners(bool useIndex = false, bool useCache = false, Guid? id = null, string firstName = null, string lastName = null, string dog=null, Guid? dogId = null, string breed = null)
+        public List<DogOwnerResponse> GetOwners(bool useIndex = false, bool useCache = false, Guid? id = null, string firstName = null, string lastName = null, string countryCode=null, string dog=null, Guid? dogId = null, string breed = null)
         {
             var db = useIndex ? _indexedContext : _nonIndexedDbContext;
             var parameters = new { id, firstName, lastName, dog, dogId, breed};
@@ -124,9 +125,12 @@ namespace CSCI6600Project.DataGeneration
                 (id.HasValue ? (o.Id == id.Value) : true) &&
                 (!String.IsNullOrEmpty(firstName) ? (o.FirstName == firstName) : true) &&
                 (!String.IsNullOrEmpty(lastName) ? (o.LastName == lastName) : true) &&
+                (!String.IsNullOrEmpty(countryCode) ? (o.CountryCode== countryCode) : true) &&
                 (!String.IsNullOrEmpty(dog) ? (o.Dogs.Any(d => d.Name == dog)) : true) &&
                 (dogId.HasValue ? (o.Dogs.Any(d => d.Id == dogId)) : true) &&
                 (!String.IsNullOrEmpty(breed) ? (o.Dogs.Any(d => d.Breed.Name == breed)) : true))
+                .Include(o => o.Dogs)
+                .ThenInclude(d => d.Breed)
                 .Select(o => new DogOwnerResponse(o))
                 .ToList();
             if (owners.Count > 0 && useCache)
