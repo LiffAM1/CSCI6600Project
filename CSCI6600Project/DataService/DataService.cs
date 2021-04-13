@@ -64,14 +64,13 @@ namespace CSCI6600Project.DataGeneration
                 .Include(d => d.Breed)
                 .Include(d => d.Breed.Group)
                 .Include(d => d.Owner)
-                .Select(d => new DogResponse(d));
+                .Select(d => new DogResponse(d)).ToList();
             if (useCache || !devNull)
             {
-                var dogsList = dogs.ToList();
-                if (dogsList.Count > 0 && useCache)
-                    _cache.WriteToCache(GenerateKey("Dog", parameterList), dogsList);
+                if (dogs.Count > 0 && useCache)
+                    _cache.WriteToCache(GenerateKey("Dog", parameterList), dogs);
                 if (!devNull)
-                    return dogsList;
+                    return dogs;
             }
             return null;
         }
@@ -102,14 +101,13 @@ namespace CSCI6600Project.DataGeneration
                 (groupId.HasValue ? (b.GroupId == groupId.Value) : true) &&
                 (!String.IsNullOrEmpty(group) ? (b.Group.Name == group) : true))
                 .Include(d => d.Group)
-                .Select(b => new DogBreedResponse(b));
+                .Select(b => new DogBreedResponse(b)).ToList();
             if (useCache || !devNull)
             {
-                var breedsList = breeds.ToList();
-                if (breedsList.Count > 0 && useCache)
-                    _cache.WriteToCache(GenerateKey("DogBreed", parameterList), breedsList);
+                if (breeds.Count > 0 && useCache)
+                    _cache.WriteToCache(GenerateKey("DogBreed", parameterList), breeds);
                 if (!devNull)
-                    return breedsList;
+                    return breeds;
             }
             return null;
         }
@@ -143,14 +141,13 @@ namespace CSCI6600Project.DataGeneration
                 (!String.IsNullOrEmpty(breed) ? (o.Dogs.Any(d => d.Breed.Name == breed)) : true))
                 .Include(o => o.Dogs)
                 .ThenInclude(d => d.Breed)
-                .Select(o => new DogOwnerResponse(o));
+                .Select(o => new DogOwnerResponse(o)).ToList();
             if (useCache || !devNull)
             {
-                var ownersList = owners.ToList();
-                if (ownersList.Count > 0 && useCache)
-                    _cache.WriteToCache(GenerateKey("DogOwner", parameterList), ownersList);
+                if (owners.Count > 0 && useCache)
+                    _cache.WriteToCache(GenerateKey("DogOwner", parameterList), owners);
                 if (!devNull)
-                    return ownersList;
+                    return owners;
             }
             return null;
         }
