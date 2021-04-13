@@ -31,7 +31,7 @@ namespace CSCI6600Project.Controllers
             var breeds = _dataService.GetBreeds(useIndex: useIndex, useCache: useCache, id: id);
             if (!devNull)
                 return Ok(breeds);
-            return Ok(breeds.Count);
+            return Ok();
         }
 
         [HttpGet]
@@ -40,7 +40,7 @@ namespace CSCI6600Project.Controllers
             var breeds= _dataService.GetBreeds(useIndex: useIndex, useCache: useCache, name: name,popularity: popularity,group: group, groupId: groupId);
             if (!devNull)
                 return Ok(breeds);
-            return Ok(breeds.Count);
+            return Ok();
         }
     }
 }

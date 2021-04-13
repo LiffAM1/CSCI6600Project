@@ -31,7 +31,7 @@ namespace CSCI6600Project.Controllers
             var dogs = _dataService.GetDogs(useIndex: useIndex, useCache: useCache, id: id);
             if (!devNull)
                 return Ok(dogs);
-            return Ok(dogs.Count);
+            return Ok();
         }
 
         [HttpGet]
@@ -40,7 +40,7 @@ namespace CSCI6600Project.Controllers
             var dogs = _dataService.GetDogs(useIndex: useIndex, useCache: useCache,breed: breed,breedId: breedId,name: name,ownerId: ownerId,ownerFirstName: ownerFirstName,ownerLastName: ownerLastName,popularity: popularity);
             if (!devNull)
                 return Ok(dogs);
-            return Ok(dogs.Count);
+            return Ok();
         }
     }
 }
