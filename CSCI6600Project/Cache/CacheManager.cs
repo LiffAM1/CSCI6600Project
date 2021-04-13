@@ -23,9 +23,16 @@ namespace CSCI6600Project.Cache
 
         public T GetCacheValue<T>(string key)
         {
-            var value = _cache.GetString(key);
-            if (value != null)
-                return JsonConvert.DeserializeObject<T>(value);
+            try
+            {
+                var value = _cache.GetString(key);
+                if (value != null)
+                    return JsonConvert.DeserializeObject<T>(value);
+            }
+            catch
+            {
+                // if cache times out, just return null   
+            }
             return default(T);
         }
     }
