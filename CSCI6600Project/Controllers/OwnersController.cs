@@ -26,17 +26,21 @@ namespace CSCI6600Project.Controllers
         }
 
         [HttpGet("{id:guid?}")]
-        public IActionResult GetOwners([FromRoute]Guid? id=null,[FromQuery]bool useIndex=false,[FromQuery]bool useCache=false)
+        public IActionResult GetOwners([FromRoute]Guid? id=null,[FromQuery]bool useIndex=false,[FromQuery]bool useCache=false,[FromQuery]bool devNull=false)
         {
             var owners = _dataService.GetOwners(useIndex: useIndex, useCache: useCache, id: id);
-            return Ok(owners);
+            if (!devNull)
+                return Ok(owners);
+            return Ok(owners.Count);
         }
 
         [HttpGet]
-        public IActionResult GetOwners([FromQuery]bool useIndex=false,[FromQuery]bool useCache=false,[FromQuery]string firstName=null,[FromQuery]string lastName=null,[FromQuery]string dog=null,[FromQuery]Guid? dogId=null,[FromQuery]string breed=null)
+        public IActionResult GetOwners([FromQuery]bool useIndex=false,[FromQuery]bool useCache=false,[FromQuery]string firstName=null,[FromQuery]string lastName=null,[FromQuery]string dog=null,[FromQuery]Guid? dogId=null,[FromQuery]string breed=null,[FromQuery]bool devNull=false)
         {
             var owners = _dataService.GetOwners(useIndex: useIndex, useCache: useCache, firstName: firstName,lastName: lastName,dog: dog, dogId: dogId,breed: breed);
-            return Ok(owners);
+            if (!devNull)
+                return Ok(owners);
+            return Ok(owners.Count);
         }
     }
 }

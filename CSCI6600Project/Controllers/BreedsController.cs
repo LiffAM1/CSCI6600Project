@@ -26,17 +26,21 @@ namespace CSCI6600Project.Controllers
         }
 
         [HttpGet("{id:guid?}")]
-        public IActionResult GetBreeds([FromRoute]Guid? id=null,[FromQuery]bool useIndex=false,[FromQuery]bool useCache=false)
+        public IActionResult GetBreeds([FromRoute]Guid? id=null,[FromQuery]bool useIndex=false,[FromQuery]bool useCache=false,[FromQuery]bool devNull=false)
         {
             var breeds = _dataService.GetBreeds(useIndex: useIndex, useCache: useCache, id: id);
-            return Ok(breeds);
+            if (!devNull)
+                return Ok(breeds);
+            return Ok(breeds.Count);
         }
 
         [HttpGet]
-        public IActionResult GetBreeds([FromQuery]bool useIndex=false,[FromQuery]bool useCache=false,[FromQuery]string name=null,[FromQuery]int? popularity=null,[FromQuery]string group=null,[FromQuery]Guid? groupId=null)
+        public IActionResult GetBreeds([FromQuery]bool useIndex=false,[FromQuery]bool useCache=false,[FromQuery]string name=null,[FromQuery]int? popularity=null,[FromQuery]string group=null,[FromQuery]Guid? groupId=null,[FromQuery]bool devNull=false)
         {
             var breeds= _dataService.GetBreeds(useIndex: useIndex, useCache: useCache, name: name,popularity: popularity,group: group, groupId: groupId);
-            return Ok(breeds);
+            if (!devNull)
+                return Ok(breeds);
+            return Ok(breeds.Count);
         }
     }
 }
