@@ -30,10 +30,10 @@ namespace CSCI6600Project.DataGeneration
             _configuration = config;
             _cache = cache;
         }
-        public List<DogResponse> GetDogs(bool devNull = false, bool useIndex = false, bool useCache = false, Guid? id = null, string breed = null, Guid? breedId = null, string name = null, string ownerFirstName = null, string ownerLastName = null, Guid? ownerId = null, int? popularity = null, string countryCode=null)
+        public List<DogResponse> GetDogs(bool devNull = false, bool useIndex = false, bool useCache = false, Guid? id = null, string breed = null, Guid? breedId = null, string group = null, Guid? groupId = null, string name = null, string ownerFirstName = null, string ownerLastName = null, Guid? ownerId = null, int? popularity = null, string countryCode=null)
         {
             var db = useIndex ? _indexedContext : _nonIndexedDbContext;
-            var parameters = new { id, breed, breedId, name, ownerFirstName, ownerLastName, ownerId, popularity };
+            var parameters = new { id, breed, breedId, group, groupId, name, ownerFirstName, ownerLastName, ownerId, popularity, countryCode };
             var parameterList = new List<string>();
             foreach (PropertyInfo pi in parameters.GetType().GetProperties())
             {
@@ -47,7 +47,7 @@ namespace CSCI6600Project.DataGeneration
             {
                 var cachedDogs = _cache.GetCacheValue<List<DogResponse>>(GenerateKey("Dog", parameterList));
                 if (cachedDogs != null)
-                    return cachedDogs;
+                    return !devNull ? cachedDogs : null;
              }
             var dogs = db.Dogs.Where(d =>
                 ((id.HasValue ? (d.Id == id.Value) : true) &&
@@ -58,17 +58,20 @@ namespace CSCI6600Project.DataGeneration
                 (!String.IsNullOrEmpty(ownerFirstName) ? (d.Owner.FirstName == ownerFirstName) : true) &&
                 (!String.IsNullOrEmpty(ownerLastName) ? (d.Owner.LastName == ownerLastName) : true) &&
                 (!String.IsNullOrEmpty(countryCode) ? (d.Owner.CountryCode == countryCode) : true) &&
-                (popularity.HasValue ? (d.Breed.BreedPopularity == popularity.Value) : true)))
+                (popularity.HasValue ? (d.Breed.BreedPopularity == popularity.Value) : true) &&
+                (groupId.HasValue ? (d.Breed.GroupId == groupId.Value) : true) &&
+                (!String.IsNullOrEmpty(group) ? (d.Breed.Group.Name == group) : true)))
                 .Include(d => d.Breed)
                 .Include(d => d.Breed.Group)
                 .Include(d => d.Owner)
                 .Select(d => new DogResponse(d));
-            if (!devNull)
+            if (useCache || !devNull)
             {
                 var dogsList = dogs.ToList();
                 if (dogsList.Count > 0 && useCache)
                     _cache.WriteToCache(GenerateKey("Dog", parameterList), dogsList);
-                return dogsList;
+                if (!devNull)
+                    return dogsList;
             }
             return null;
         }
@@ -90,7 +93,7 @@ namespace CSCI6600Project.DataGeneration
             {
                 var cachedBreeds = _cache.GetCacheValue<List<DogBreedResponse>>(GenerateKey("DogBreed", parameterList));
                 if (cachedBreeds != null)
-                    return cachedBreeds;
+                    return !devNull ? cachedBreeds : null;
              }
             var breeds = _indexedContext.DogBreeds.Where(b =>
                 (id.HasValue ? (b.Id == id.Value) : true) &&
@@ -100,12 +103,13 @@ namespace CSCI6600Project.DataGeneration
                 (!String.IsNullOrEmpty(group) ? (b.Group.Name == group) : true))
                 .Include(d => d.Group)
                 .Select(b => new DogBreedResponse(b));
-            if (!devNull)
+            if (useCache || !devNull)
             {
                 var breedsList = breeds.ToList();
                 if (breedsList.Count > 0 && useCache)
                     _cache.WriteToCache(GenerateKey("DogBreed", parameterList), breedsList);
-                return breedsList;
+                if (!devNull)
+                    return breedsList;
             }
             return null;
         }
@@ -113,7 +117,7 @@ namespace CSCI6600Project.DataGeneration
         public List<DogOwnerResponse> GetOwners(bool devNull = false, bool useIndex = false, bool useCache = false, Guid? id = null, string firstName = null, string lastName = null, string countryCode=null, string dog=null, Guid? dogId = null, string breed = null)
         {
             var db = useIndex ? _indexedContext : _nonIndexedDbContext;
-            var parameters = new { id, firstName, lastName, dog, dogId, breed};
+            var parameters = new { id, firstName, lastName, countryCode, dog, dogId, breed};
             var parameterList = new List<string>();
             foreach (PropertyInfo pi in parameters.GetType().GetProperties())
             {
@@ -127,7 +131,7 @@ namespace CSCI6600Project.DataGeneration
             {
                 var dogOwners = _cache.GetCacheValue<List<DogOwnerResponse>>(GenerateKey("DogOwner", parameterList));
                 if (dogOwners != null)
-                    return dogOwners;
+                    return !devNull ? dogOwners : null;
              }
             var owners = _indexedContext.DogOwners.Where(o =>
                 (id.HasValue ? (o.Id == id.Value) : true) &&
@@ -140,12 +144,13 @@ namespace CSCI6600Project.DataGeneration
                 .Include(o => o.Dogs)
                 .ThenInclude(d => d.Breed)
                 .Select(o => new DogOwnerResponse(o));
-            if (!devNull)
+            if (useCache || !devNull)
             {
                 var ownersList = owners.ToList();
                 if (ownersList.Count > 0 && useCache)
                     _cache.WriteToCache(GenerateKey("DogOwner", parameterList), ownersList);
-                return ownersList;
+                if (!devNull)
+                    return ownersList;
             }
             return null;
         }

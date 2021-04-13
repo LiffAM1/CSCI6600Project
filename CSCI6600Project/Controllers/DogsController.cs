@@ -35,9 +35,9 @@ namespace CSCI6600Project.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetDogs([FromQuery]bool useIndex=false,[FromQuery]bool useCache=false,[FromQuery]string breed=null,[FromQuery]Guid? breedId=null,[FromQuery]string name=null,[FromQuery]string ownerFirstName=null,[FromQuery]string ownerLastName=null,[FromQuery]Guid? ownerId=null,[FromQuery]int? popularity=null,[FromQuery]bool devNull=false)
+        public IActionResult GetDogs([FromQuery]bool useIndex=false,[FromQuery]bool useCache=false,[FromQuery]string breed=null,[FromQuery]Guid? breedId=null,[FromQuery]string name=null,[FromQuery]string ownerFirstName=null,[FromQuery]string ownerLastName=null,[FromQuery]Guid? ownerId=null,[FromQuery]int? popularity=null,[FromQuery]Guid? groupId=null,[FromQuery]string group=null,[FromQuery]bool devNull=false)
         {
-            var dogs = _dataService.GetDogs(useIndex: useIndex, useCache: useCache,breed: breed,breedId: breedId,name: name,ownerId: ownerId,ownerFirstName: ownerFirstName,ownerLastName: ownerLastName,popularity: popularity);
+            var dogs = _dataService.GetDogs(devNull: devNull, useIndex: useIndex, useCache: useCache,breed: breed,breedId: breedId,name: name,ownerId: ownerId,ownerFirstName: ownerFirstName,ownerLastName: ownerLastName,popularity: popularity,groupId: groupId,group: group);
             if (!devNull)
                 return Ok(dogs);
             return Ok();
