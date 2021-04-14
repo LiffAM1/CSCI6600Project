@@ -35,9 +35,9 @@ namespace CSCI6600Project.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetOwners([FromQuery]bool useIndex=false,[FromQuery]bool useCache=false,[FromQuery]string firstName=null,[FromQuery]string lastName=null,[FromQuery]string dog=null,[FromQuery]Guid? dogId=null,[FromQuery]string breed=null,[FromQuery]bool devNull=false)
+        public IActionResult GetOwners([FromQuery]bool useIndex=false,[FromQuery]bool useCache=false,[FromQuery]string firstName=null,[FromQuery]string lastName=null,[FromQuery]string dog=null,[FromQuery]Guid? dogId=null,[FromQuery]string breed=null,[FromQuery]string countryCode=null,[FromQuery]bool devNull=false)
         {
-            var owners = _dataService.GetOwners(useIndex: useIndex, useCache: useCache, firstName: firstName,lastName: lastName,dog: dog, dogId: dogId,breed: breed);
+            var owners = _dataService.GetOwners(useIndex: useIndex, useCache: useCache, firstName: firstName,lastName: lastName,dog: dog, dogId: dogId,breed: breed,countryCode: countryCode);
             if (!devNull)
                 return Ok(owners);
             return Ok();

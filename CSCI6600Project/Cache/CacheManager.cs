@@ -18,7 +18,14 @@ namespace CSCI6600Project.Cache
 
         public void WriteToCache<T>(string key, T value)
         {
-            _cache.SetString(key,JsonConvert.SerializeObject(value),options);
+            try
+            {
+                _cache.SetString(key,JsonConvert.SerializeObject(value),options);
+            }
+            catch
+            {
+                // If write fails, it'll try again next time
+            }
         }
 
         public T GetCacheValue<T>(string key)
