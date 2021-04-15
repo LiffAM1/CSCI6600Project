@@ -2,7 +2,7 @@ import time
 from locust import HttpUser, task, constant 
 
 class User(HttpUser):
-    wait_time = constant(10)
+    wait_time = constant(1)
 
     @task
     def get_dogs_by_id(self):
