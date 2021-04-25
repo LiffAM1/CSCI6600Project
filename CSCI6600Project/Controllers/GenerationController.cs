@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace CSCI6600Project.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     [ApiController]
     [Route("[controller]")]
     public class GenerationController : ControllerBase

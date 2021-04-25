@@ -48,6 +48,9 @@ namespace CSCI6600Project
             services.AddTransient<IDataService,DataService>();
             services.AddTransient<ICacheManager,CacheManager>();
             services.AddTransient<IGeneratorService,GeneratorService>();
+
+            // API Documentation
+            services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -57,6 +60,13 @@ namespace CSCI6600Project
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            // API Documentation
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/csci6600/swagger.json", "CSCI 6600 Final Project API");
+            });
 
             app.UseHttpsRedirection();
 
@@ -68,6 +78,7 @@ namespace CSCI6600Project
             {
                 endpoints.MapControllers();
             });
+
         }
     }
 }
