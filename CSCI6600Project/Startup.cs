@@ -65,7 +65,7 @@ namespace CSCI6600Project
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/csci6600/swagger.json", "CSCI 6600 Final Project API");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "CSCI 6600 Final Project API");
             });
 
             app.UseHttpsRedirection();
